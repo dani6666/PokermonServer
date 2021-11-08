@@ -15,7 +15,7 @@ namespace Pokermon
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls("http://localhost:2137");
+                    webBuilder.UseUrls("http://0.0.0.0:2137");
                 });
     }
 }
