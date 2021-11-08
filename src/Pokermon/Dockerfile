@@ -7,12 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY *.csproj .
-RUN dotnet restore
 
 # Copy everything else and build
 COPY . .
-RUN dotnet publish -c Release -o app/publish
+RUN dotnet publish Pokermon.sln -c Release -o app/publish
 
 FROM base AS final
 WORKDIR /app
