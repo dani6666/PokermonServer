@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Pokermon.Core.Model;
 using Pokermon.Core.Model.Requests;
+using Pokermon.Core.Model.Responses;
 using System;
 using System.Collections.Generic;
 
@@ -16,13 +17,19 @@ namespace Pokermon.Controllers
             throw new NotImplementedException();
         }
 
-        [HttpPost("/{id}")]
-        public void Join(int id)
+        [HttpPost("join/{id}")]
+        public JoinTableResponse Join(int id)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPost]
+        [HttpPost("leave/{id}")]
+        public void Leave(int id, LeaveTableRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost("create")]
         public void Create(CreateTableRequest request)
         {
             throw new NotImplementedException();

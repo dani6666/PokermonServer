@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Pokermon.Core.Model;
 using System;
 
 namespace Pokermon.Controllers
@@ -7,8 +8,8 @@ namespace Pokermon.Controllers
     [ApiController]
     public class GameController : ControllerBase
     {
-        [HttpGet("/{id}")]
-        public void Index()
+        [HttpGet("{id}")]
+        public GameState Index()
         {
             throw new NotImplementedException();
         }
