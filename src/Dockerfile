@@ -10,8 +10,3 @@ WORKDIR /src
 
 COPY . .
 RUN dotnet publish Pokermon.sln -c Release -o app/publish
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Pokermon.dll"]
