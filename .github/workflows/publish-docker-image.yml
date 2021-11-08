@@ -26,5 +26,6 @@ jobs:
       
       - name: Build and push Docker image
         run: |
-          docker build . -t dani6666/pokermon -f src/Dockerfile
+          cd src
+          docker build . -t dani6666/pokermon -f Dockerfile
           docker push -t dani6666/pokermon:latest
