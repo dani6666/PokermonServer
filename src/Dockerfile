@@ -8,7 +8,6 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
-# Copy everything else and build
 COPY . .
 RUN dotnet publish Pokermon.sln -c Release -o app/publish
 
