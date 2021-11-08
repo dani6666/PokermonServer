@@ -29,9 +29,9 @@
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "launchUrl": "http://localhost:2137/swagger",
       "publishAllPorts": true,
-      "useSSL": true
+      "applicationUrl": "http://localhost:2137"
     }
   }
 }
