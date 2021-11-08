@@ -28,4 +28,4 @@ jobs:
         run: |
           cd src
           docker build . -t dani6666/pokermon -f Dockerfile
-          docker push -t dani6666/pokermon:latest
+          docker push dani6666/pokermon:latest
