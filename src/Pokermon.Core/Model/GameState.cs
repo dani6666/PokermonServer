@@ -5,8 +5,8 @@ namespace Pokermon.Core.Model
 {
     public class GameState
     {
-        public bool isEndOfHand { get; set; }
-        public int currentPlayerPosition { get; set; }
+        public bool IsEndOfHand { get; set; }
+        public int CurrentPlayerPosition { get; set; }
         public int PotValue { get; set; }
         public List<Card> TableCards { get; set; }
         public List<Card> PocketCards { get; set; }
