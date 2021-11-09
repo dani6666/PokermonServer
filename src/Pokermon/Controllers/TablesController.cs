@@ -24,7 +24,7 @@ namespace Pokermon.Controllers
         }
 
         [HttpPost("leave/{id}")]
-        public void Leave(int id, LeaveTableRequest request)
+        public void Leave(int id, [FromHeader] Guid playerId)
         {
             throw new NotImplementedException();
         }
