@@ -1,36 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Pokermon.Core.Model;
 using Pokermon.Core.Model.Requests;
-using Pokermon.Core.Model.Responses;
 using System;
-using System.Collections.Generic;
 
 namespace Pokermon.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TablesController : ControllerBase
+    public class GameController : ControllerBase
     {
-        [HttpGet]
-        public IEnumerable<Table> Index()
+        [HttpGet("{id}")]
+        public GameState Index(int id, [FromHeader] Guid playerId)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPost("join/{id}")]
-        public JoinTableResponse Join(int id)
+        [HttpPost("fold/{id}")]
+        public void Fold(int id, [FromHeader] Guid playerId)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPost("leave/{id}")]
-        public void Leave(int id, [FromHeader] Guid playerId)
+        [HttpPost("check/{id}")]
+        public void Check(int id, [FromHeader] Guid playerId)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPost("create")]
-        public void Create(CreateTableRequest request)
+        [HttpPost("bet/{id}")]
+        public void Bet(int id, [FromHeader] Guid playerId, [FromBody] BetRequest request)
         {
             throw new NotImplementedException();
         }
