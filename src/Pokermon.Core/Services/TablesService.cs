@@ -59,8 +59,11 @@ namespace Pokermon.Core.Services
 
                 var playersLeft = _repository.RemovePlayer(tableId, playerId);
 
-                if(playersLeft == 0)
+                if (playersLeft == 0)
+                {
                     _repository.DeleteTable(tableId);
+                    TablesSynchronizer.Remove(tableId);
+                }
             }
 
             return OperationError.NoError;
