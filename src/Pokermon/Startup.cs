@@ -29,6 +29,7 @@ namespace Pokermon
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pokermon", Version = "v1" });
             });
+            services.AddCors();
 
             services.AddSingleton<ITablesRepository, TablesRepository>();
             services.AddSingleton<ITablesService, TablesService>();
@@ -44,6 +45,8 @@ namespace Pokermon
 
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pokermon v1"));
+
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
             app.UseRouting();
 
