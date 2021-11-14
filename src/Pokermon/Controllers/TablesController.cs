@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pokermon.Core.Model;
 using Pokermon.Core.Model.Requests;
 using Pokermon.Core.Model.Responses;
 using System;
@@ -12,7 +11,7 @@ namespace Pokermon.Controllers
     public class TablesController : ControllerBase
     {
         [HttpGet]
-        public IEnumerable<Table> Index()
+        public IEnumerable<TableResponse> Index()
         {
             throw new NotImplementedException();
         }
