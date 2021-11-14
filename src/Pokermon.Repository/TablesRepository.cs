@@ -1,5 +1,5 @@
 ﻿using Pokermon.Core.Interfaces.Repositories;
-using Pokermon.Core.Model;
+using Pokermon.Core.Model.Entities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Pokermon.Repository
         private static int _nextTableId;
 
         private static readonly object TableIdLock = new();
-        private static readonly Synchronizer TablesSynchronizer = new();
+
         public List<Table> GetAllTables()
         {
             return Tables.Values.ToList();
@@ -30,40 +30,48 @@ namespace Pokermon.Repository
             Tables.TryAdd(id, new Table(id, name));
         }
 
-        public int? AddPlayer(int tableId, Guid playerId)
+        public void DeleteTable(int tableId)
         {
-            lock (TablesSynchronizer[tableId])
-            {
-                if (!Tables.TryGetValue(tableId, out var table))
-                    return null;
-
-                var freePosition = Array.IndexOf(table.Players, null);
-
-                table.Players[freePosition] = new Player(playerId);
-
-                return freePosition;
-            }
+            Tables.Remove(tableId, out _);
         }
 
-        public void RemovePlayer(int tableId, Guid playerId)
+        public bool TableExists(int id) => Tables.ContainsKey(id);
+
+        public bool TableExists(string name) => Tables.Values.Any(t => t.Name == name);
+
+        public bool PlayerExists(int tableId, Guid playerId) => Tables[tableId].Players.Any(p => p?.Id == playerId);
+
+        public int? AddPlayer(int tableId, Guid playerId)
         {
-            lock (TablesSynchronizer[tableId])
+            var table = Tables[tableId];
+
+            var freePosition = Array.IndexOf(table.Players, null);
+
+            if (freePosition == -1)
+                return null;
+
+            table.Players[freePosition] = new Player(playerId);
+
+            return freePosition;
+        }
+
+        public int RemovePlayer(int tableId, Guid playerId)
+        {
+            var table = Tables[tableId];
+            var leftPlayers = 0;
+
+            for (var i = 0; i < 8; i++)
             {
-                if (!Tables.TryGetValue(tableId, out var table))
-                    return;
+                if (table.Players[i] == null)
+                    continue;
 
-                for (var i = 0; i < 8; i++)
-                {
-                    if (table.Players[i].Id == playerId)
-                    {
-                        table.Players[i] = null;
-                        break;
-                    }
-                }
-
-                if (table.Players.All(p => p == null))
-                    Tables.TryRemove(tableId, out _);
+                if (table.Players[i].Id == playerId)
+                    table.Players[i] = null;
+                else
+                    leftPlayers++;
             }
+
+            return leftPlayers;
         }
     }
 }

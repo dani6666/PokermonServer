@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pokermon.Core.Model
+namespace Pokermon.Core.Model.Entities
 {
     public class Player
     {
