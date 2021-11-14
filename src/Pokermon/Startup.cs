@@ -4,6 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Pokermon.Core.Interfaces.Repositories;
+using Pokermon.Core.Interfaces.Services;
+using Pokermon.Core.Services;
+using Pokermon.Repository;
 
 namespace Pokermon
 {
@@ -25,6 +29,10 @@ namespace Pokermon
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pokermon", Version = "v1" });
             });
+            services.AddCors();
+
+            services.AddSingleton<ITablesRepository, TablesRepository>();
+            services.AddSingleton<ITablesService, TablesService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,6 +45,8 @@ namespace Pokermon
 
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pokermon v1"));
+
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
             app.UseRouting();
 

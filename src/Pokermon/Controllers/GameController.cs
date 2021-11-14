@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pokermon.Core.Model;
 using Pokermon.Core.Model.Requests;
+using Pokermon.Core.Model.Responses;
 using System;
 
 namespace Pokermon.Controllers
@@ -10,7 +10,7 @@ namespace Pokermon.Controllers
     public class GameController : ControllerBase
     {
         [HttpGet("{id}")]
-        public GameState Index(int id, [FromHeader] Guid playerId)
+        public GameStateResponse Index(int id, [FromHeader] Guid playerId)
         {
             throw new NotImplementedException();
         }

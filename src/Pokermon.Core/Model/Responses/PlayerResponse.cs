@@ -1,9 +1,9 @@
 ﻿using Pokermon.Core.Model.Enums;
 using System.Collections.Generic;
 
-namespace Pokermon.Core.Model
+namespace Pokermon.Core.Model.Responses
 {
-    public class Player
+    public class PlayerResponse
     {
         public bool IsPlaying { get; set; }
         public bool IsAllIn { get; set; }

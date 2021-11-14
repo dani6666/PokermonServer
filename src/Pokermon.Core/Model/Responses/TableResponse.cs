@@ -1,6 +1,6 @@
-﻿namespace Pokermon.Core.Model
+﻿namespace Pokermon.Core.Model.Responses
 {
-    public class Table
+    public class TableResponse
     {
         public int Id { get; set; }
         public string Name { get; set; }
