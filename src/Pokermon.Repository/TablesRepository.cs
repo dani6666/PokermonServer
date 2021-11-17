@@ -39,18 +39,18 @@ namespace Pokermon.Repository
 
         public bool TableExists(string name) => Tables.Values.Any(t => t.Name == name);
 
-        public bool PlayerExists(int tableId, Guid playerId) => Tables[tableId].Players.Any(p => p?.Id == playerId);
+        public bool PlayerExists(int tableId, Guid playerId) => Tables[tableId].PlayerIds.Contains(playerId);
 
         public int? AddPlayer(int tableId, Guid playerId)
         {
             var table = Tables[tableId];
 
-            var freePosition = Array.IndexOf(table.Players, null);
+            var freePosition = Array.IndexOf(table.PlayerIds, null);
 
             if (freePosition == -1)
                 return null;
 
-            table.Players[freePosition] = new Player(playerId);
+            table.PlayerIds[freePosition] = playerId;
 
             return freePosition;
         }
@@ -62,11 +62,11 @@ namespace Pokermon.Repository
 
             for (var i = 0; i < 8; i++)
             {
-                if (table.Players[i] == null)
+                if (table.PlayerIds[i] == default)
                     continue;
 
-                if (table.Players[i].Id == playerId)
-                    table.Players[i] = null;
+                if (table.PlayerIds[i] == playerId)
+                    table.PlayerIds[i] = default;
                 else
                     leftPlayers++;
             }

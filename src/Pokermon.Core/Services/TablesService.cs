@@ -24,7 +24,7 @@ namespace Pokermon.Core.Services
         public ResponseResult<List<TableResponse>> ListTables()
         {
             return new ResponseResult<List<TableResponse>>(_repository.GetAllTables()
-                .Select(t => new TableResponse { Id = t.Id, Name = t.Name, Players = t.Players.Count(p => p != null) })
+                .Select(t => new TableResponse { Id = t.Id, Name = t.Name, Players = t.PlayerIds.Count(p => p != default) })
                 .ToList());
         }
 

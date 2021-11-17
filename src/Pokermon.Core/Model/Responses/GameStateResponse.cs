@@ -1,4 +1,4 @@
-﻿using Pokermon.Core.Model.Enums;
+﻿using Pokermon.Core.Model.Entities;
 using System.Collections.Generic;
 
 namespace Pokermon.Core.Model.Responses
@@ -10,8 +10,13 @@ namespace Pokermon.Core.Model.Responses
         public int PotValue { get; set; }
         public List<Card> TableCards { get; set; }
         public List<Card> PocketCards { get; set; }
-        public List<PlayerResponse> Players { get; set; }
+        public PlayerResponse[] Players { get; set; }
         public int CashToCall { get; set; }
         public bool CanRaise { get; set; }
+
+        public GameStateResponse(GameState gameState)
+        {
+            
+        }
     }
 }

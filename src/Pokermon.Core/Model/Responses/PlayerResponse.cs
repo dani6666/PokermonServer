@@ -1,4 +1,4 @@
-﻿using Pokermon.Core.Model.Enums;
+﻿using Pokermon.Core.Model.Entities;
 using System.Collections.Generic;
 
 namespace Pokermon.Core.Model.Responses
