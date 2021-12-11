@@ -37,6 +37,7 @@ namespace Pokermon.Core.Services
             var gameResponse = new GameStateResponse(gameState);
 
             var thisPlayer = gameState.Players.First(p => p.Id == playerId);
+            var isPlaying = gameResponse.PocketCards != null;
             gameResponse.PocketCards = thisPlayer.PocketCards;
             gameResponse.Players = gameState.Players.Select(p => p != null ? new PlayerResponse(p) : null).ToArray();
             if (gameState.IsEndOfHand)
@@ -47,8 +48,11 @@ namespace Pokermon.Core.Services
                 }
             }
 
-            gameResponse.CashToCall = gameState.HighestBet - thisPlayer.CurrentBet;
-            gameResponse.CanRaise = thisPlayer.CanRaise;
+            if (isPlaying)
+            {
+                gameResponse.CashToCall = gameState.HighestBet - thisPlayer.CurrentBet;
+                gameResponse.CanRaise = thisPlayer.CanRaise;
+            }
 
             return new ResponseResult<GameStateResponse>(gameResponse);
         }
