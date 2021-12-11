@@ -16,8 +16,6 @@ namespace Pokermon.Core.Model.Entities
         public GameState(int id)
         {
             TableId = id;
-
-            
         }
     }
 }

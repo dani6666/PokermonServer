@@ -1,17 +1,22 @@
 ﻿using Pokermon.Core.Extensions;
 using Pokermon.Core.Interfaces.Repositories;
+using Pokermon.Core.Interfaces.Services;
 using Pokermon.Core.Model;
 using Pokermon.Core.Model.Entities;
 using Pokermon.Core.Model.Enums;
 using Pokermon.Core.Model.Responses;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Pokermon.Core.Services
 {
-    public class GameService
+    public class GameService : IGameService
     {
         private readonly ITablesRepository _tablesRepository;
         private readonly IGamesRepository _gamesRepository;
+
+        private const int StartingBet = 10;
 
         public GameService(ITablesRepository tablesRepository, IGamesRepository gamesRepository)
         {
@@ -26,22 +31,44 @@ namespace Pokermon.Core.Services
 
             var gameState = _gamesRepository.GetGame(gameId);
 
-            return gameState == null ?
-                new ResponseResult<GameStateResponse>(OperationError.TableDoesNotExist) :
-                new ResponseResult<GameStateResponse>(new GameStateResponse(gameState));
+            if (gameState == null)
+                return new ResponseResult<GameStateResponse>(OperationError.TableDoesNotExist);
+
+            var gameResponse = new GameStateResponse(gameState);
+
+            var thisPlayer = gameState.Players.First(p => p.Id == playerId);
+            gameResponse.PocketCards = thisPlayer.PocketCards;
+            gameResponse.Players = gameState.Players.Select(p => p != null ? new PlayerResponse(p) : null).ToArray();
+            if (gameState.IsEndOfHand)
+            {
+                for (var i = 0; i < 8; i++)
+                {
+                    gameResponse.Players[i].PocketCards = gameState.Players[i].PocketCards;
+                }
+            }
+
+            gameResponse.CashToCall = gameState.HighestBet - thisPlayer.CurrentBet;
+            gameResponse.CanRaise = thisPlayer.CanRaise;
+
+            return new ResponseResult<GameStateResponse>(gameResponse);
         }
 
-        public void CreateNewGame(int id, Guid firstPlayerId)
+        public void CreateNewGame(int id)
         {
-            var newGame = new GameState(id);
-
-            newGame.Players[0] = new Player(firstPlayerId);
+            _gamesRepository.AddGame(id, new GameState(id));
         }
 
-        public void StartNewHand(int id, Guid firstPlayerId)
+        public void AddPlayer(int id, int position, Guid playerId)
         {
             var game = _gamesRepository.GetGame(id);
+            game.Players[position] = new Player(playerId);
 
+            if (game.Players.Count(p => p != null) == 2)
+                StartNewHand(game);
+        }
+
+        private static void StartNewHand(GameState game)
+        {
             game.IsEndOfHand = false;
 
             game.Deck.Clear();
@@ -57,19 +84,10 @@ namespace Pokermon.Core.Services
 
             foreach (var player in game.Players)
             {
-                if (player?.WonCash == null)
-                    continue;
-
-                player.CurrentCash += player.WonCash.Value;
-                player.WonCash = null;
-            }
-
-
-            foreach (var player in game.Players)
-            {
                 if (player == null)
                     continue;
 
+                player.PocketCards = new List<Card>();
                 for (var i = 0; i < 2; i++)
                 {
                     player.PocketCards.Add(game.Deck[0]);
@@ -78,9 +96,16 @@ namespace Pokermon.Core.Services
                 }
 
                 player.PocketCards.Sort();
+
+                if (player.WonCash == null) 
+                    continue;
+
+                player.CurrentCash += player.WonCash.Value;
+                player.WonCash = null;
             }
 
             game.CurrentPlayerPosition = Array.FindIndex(game.Players, p => p != null);
+            game.HighestBet = StartingBet;
         }
     }
 }

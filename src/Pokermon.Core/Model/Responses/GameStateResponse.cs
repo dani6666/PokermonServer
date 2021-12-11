@@ -16,7 +16,10 @@ namespace Pokermon.Core.Model.Responses
 
         public GameStateResponse(GameState gameState)
         {
-            
+            IsEndOfHand = gameState.IsEndOfHand;
+            CurrentPlayerPosition = gameState.CurrentPlayerPosition;
+            PotValue = gameState.PotValue;
+            TableCards = gameState.TableCards;
         }
     }
 }

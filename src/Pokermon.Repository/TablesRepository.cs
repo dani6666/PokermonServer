@@ -19,7 +19,7 @@ namespace Pokermon.Repository
             return Tables.Values.ToList();
         }
 
-        public void CreateTable(string name)
+        public int CreateTable(string name)
         {
             int id;
             lock (TableIdLock)
@@ -28,6 +28,8 @@ namespace Pokermon.Repository
             }
 
             Tables.TryAdd(id, new Table(id, name));
+
+            return id;
         }
 
         public void DeleteTable(int tableId)
@@ -45,7 +47,7 @@ namespace Pokermon.Repository
         {
             var table = Tables[tableId];
 
-            var freePosition = Array.IndexOf(table.PlayerIds, null);
+            var freePosition = Array.IndexOf(table.PlayerIds, default);
 
             if (freePosition == -1)
                 return null;

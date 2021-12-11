@@ -32,7 +32,10 @@ namespace Pokermon
             services.AddCors();
 
             services.AddSingleton<ITablesRepository, TablesRepository>();
+            services.AddSingleton<IGamesRepository, GamesRepository>();
+
             services.AddSingleton<ITablesService, TablesService>();
+            services.AddSingleton<IGameService, GameService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

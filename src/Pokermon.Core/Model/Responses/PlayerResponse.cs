@@ -11,5 +11,14 @@ namespace Pokermon.Core.Model.Responses
         public int CurrentBet { get; set; }
         public int? WonCash { get; set; }
         public List<Card> PocketCards { get; set; }
+
+        public PlayerResponse(Player player)
+        {
+            IsPlaying = player.PocketCards != null;
+            IsAllIn = player.IsAllIn;
+            CurrentCash = player.CurrentCash;
+            CurrentBet = player.CurrentBet;
+            WonCash = player.WonCash;
+        }
     }
 }
