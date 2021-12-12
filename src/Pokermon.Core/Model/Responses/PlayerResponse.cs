@@ -10,7 +10,7 @@ namespace Pokermon.Core.Model.Responses
         public int CurrentCash { get; set; }
         public int CurrentBet { get; set; }
         public int? WonCash { get; set; }
-        public List<Card> PocketCards { get; set; }
+        public List<int> PocketCards { get; set; }
 
         public PlayerResponse(Player player)
         {

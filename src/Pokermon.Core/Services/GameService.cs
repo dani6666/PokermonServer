@@ -1,4 +1,4 @@
-﻿using Pokermon.Core.Extensions;
+using Pokermon.Core.Extensions;
 using Pokermon.Core.Interfaces.Repositories;
 using Pokermon.Core.Interfaces.Services;
 using Pokermon.Core.Model;
@@ -38,13 +38,13 @@ namespace Pokermon.Core.Services
 
             var thisPlayer = gameState.Players.First(p => p.Id == playerId);
             var isPlaying = gameResponse.PocketCards != null;
-            gameResponse.PocketCards = thisPlayer.PocketCards;
+            gameResponse.PocketCards = thisPlayer.PocketCards.ConvertAll<int>(c => c);
             gameResponse.Players = gameState.Players.Select(p => p != null ? new PlayerResponse(p) : null).ToArray();
             if (gameState.IsEndOfHand)
             {
                 for (var i = 0; i < 8; i++)
                 {
-                    gameResponse.Players[i].PocketCards = gameState.Players[i].PocketCards;
+                    gameResponse.Players[i].PocketCards = gameState.Players[i].PocketCards.ConvertAll<int>(c => c);
                 }
             }
 

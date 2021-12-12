@@ -20,5 +20,8 @@ namespace Pokermon.Core.Model.Entities
 
             return valueComparison != 0 ? valueComparison : Color.CompareTo(other.Color);
         }
+
+        public static implicit operator int(Card card) =>
+            (int)card.Color * 13 + card.Value;
     }
 }
