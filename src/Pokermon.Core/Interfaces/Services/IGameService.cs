@@ -10,7 +10,7 @@ namespace Pokermon.Core.Interfaces.Services
         ResponseResult<GameStateResponse> GetGame(int gameId, Guid playerId);
         OperationError PlaceBet(int id, Guid playerId, int bet);
         OperationError Check(int id, Guid playerId);
-        OperationError Fold(int id, Guid playerId);
+        OperationError Fold(int id, Guid playerId, bool force = false);
         void CreateNewGame(int id);
         void AddPlayer(int id, int position, Guid playerId);
         void RestartGames();

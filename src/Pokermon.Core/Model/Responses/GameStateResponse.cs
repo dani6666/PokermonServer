@@ -8,7 +8,7 @@ namespace Pokermon.Core.Model.Responses
         public bool IsEndOfHand { get; set; }
         public int CurrentPlayerPosition { get; set; }
         public int PotValue { get; set; }
-        public int[] TableCards { get; set; } = new int[5];
+        public int?[] TableCards { get; set; } = new int?[5];
         public List<int> PocketCards { get; set; }
         public PlayerResponse[] Players { get; set; }
         public int CashToCall { get; set; }

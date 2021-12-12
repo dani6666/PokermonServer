@@ -129,7 +129,7 @@ namespace Pokermon.Core.Services
             return OperationError.NoError;
         }
 
-        public OperationError Fold(int id, Guid playerId)
+        public OperationError Fold(int id, Guid playerId, bool force = false)
         {
             if (!_tablesRepository.PlayerExists(id, playerId))
                 return OperationError.PlayerDoesNotExist;
@@ -140,14 +140,14 @@ namespace Pokermon.Core.Services
                 return OperationError.TableDoesNotExist;
 
             var player = game.Players[game.CurrentPlayerPosition];
-            if (player.Id != playerId)
+            if (player.Id != playerId || force)
                 return OperationError.OtherPlayersTurn;
 
             player.PocketCards = null;
 
             if(game.Players.Count(p => p?.PocketCards != null) == 1)
                 EndRound(game, true);
-            else
+            else if(!force)
                 PassTurn(game);
 
             return OperationError.NoError;
