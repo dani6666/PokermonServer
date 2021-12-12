@@ -19,7 +19,7 @@ namespace Pokermon.Core.Model.Responses
             IsEndOfHand = gameState.IsEndOfHand;
             CurrentPlayerPosition = gameState.CurrentPlayerPosition;
             PotValue = gameState.PotValue;
-            TableCards = gameState.TableCards.ConvertAll<int>(c => c);
+            TableCards = gameState.TableCards?.ConvertAll<int>(c => c);
         }
     }
 }
