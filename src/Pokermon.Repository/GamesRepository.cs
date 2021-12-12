@@ -1,7 +1,9 @@
 ﻿using Pokermon.Core.Interfaces.Repositories;
 using Pokermon.Core.Model.Entities;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pokermon.Repository
 {
@@ -21,5 +23,8 @@ namespace Pokermon.Repository
         {
             Games[gameId].Players[seat] = player;
         }
+
+        public IEnumerable<GameState> GetGamesToRestart(DateTime endOfHandTime) =>
+            Games.Values.Where(g => g.IsEndOfHand && g.HandEndTime < endOfHandTime);
     }
 }
