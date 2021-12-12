@@ -12,19 +12,21 @@ namespace Pokermon.Core.Services
 {
     public class TablesService : ITablesService
     {
-        private readonly ITablesRepository _repository;
+        private readonly ITablesRepository _tablesRepository;
+        private readonly IGameService _gameService;
         private static readonly Synchronizer TablesSynchronizer = new();
         private static readonly object CreateTableLock = new();
 
-        public TablesService(ITablesRepository repository)
+        public TablesService(ITablesRepository tablesRepository, IGameService gameService)
         {
-            _repository = repository;
+            _tablesRepository = tablesRepository;
+            _gameService = gameService;
         }
 
         public ResponseResult<List<TableResponse>> ListTables()
         {
-            return new ResponseResult<List<TableResponse>>(_repository.GetAllTables()
-                .Select(t => new TableResponse { Id = t.Id, Name = t.Name, Players = t.Players.Count(p => p != null) })
+            return new ResponseResult<List<TableResponse>>(_tablesRepository.GetAllTables()
+                .Select(t => new TableResponse { Id = t.Id, Name = t.Name, Players = t.PlayerIds.Count(p => p != default) })
                 .ToList());
         }
 
@@ -35,14 +37,16 @@ namespace Pokermon.Core.Services
 
             lock (TablesSynchronizer[tableId])
             {
-                if (!_repository.TableExists(tableId))
+                if (!_tablesRepository.TableExists(tableId))
                     return new ResponseResult<JoinTableResponse>(OperationError.TableDoesNotExist);
 
-                position = _repository.AddPlayer(tableId, playerId);
-            }
+                position = _tablesRepository.AddPlayer(tableId, playerId);
 
-            if (!position.HasValue)
-                return new ResponseResult<JoinTableResponse>(OperationError.NoSeatLeftAtTable);
+                if (!position.HasValue)
+                    return new ResponseResult<JoinTableResponse>(OperationError.NoSeatLeftAtTable);
+
+                _gameService.AddPlayer(tableId, position.Value, playerId);
+            }
 
             return new ResponseResult<JoinTableResponse>(new JoinTableResponse(playerId, position.Value));
         }
@@ -51,17 +55,17 @@ namespace Pokermon.Core.Services
         {
             lock (TablesSynchronizer[tableId])
             {
-                if (!_repository.TableExists(tableId))
+                if (!_tablesRepository.TableExists(tableId))
                     return OperationError.TableDoesNotExist;
 
-                if (!_repository.PlayerExists(tableId, playerId))
+                if (!_tablesRepository.PlayerExists(tableId, playerId))
                     return OperationError.PlayerDoesNotExist;
 
-                var playersLeft = _repository.RemovePlayer(tableId, playerId);
+                var playersLeft = _tablesRepository.RemovePlayer(tableId, playerId);
 
                 if (playersLeft == 0)
                 {
-                    _repository.DeleteTable(tableId);
+                    _tablesRepository.DeleteTable(tableId);
                     TablesSynchronizer.Remove(tableId);
                 }
             }
@@ -73,10 +77,12 @@ namespace Pokermon.Core.Services
         {
             lock (CreateTableLock)
             {
-                if (_repository.TableExists(request.Name))
+                if (_tablesRepository.TableExists(request.Name))
                     return OperationError.TableAlreadyExists;
 
-                _repository.CreateTable(request.Name);
+                var tableId = _tablesRepository.CreateTable(request.Name);
+
+                _gameService.CreateNewGame(tableId);
             }
 
             return OperationError.NoError;

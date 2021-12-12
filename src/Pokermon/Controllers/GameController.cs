@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Pokermon.Core.Interfaces.Services;
+using Pokermon.Core.Model.Enums;
 using Pokermon.Core.Model.Requests;
 using Pokermon.Core.Model.Responses;
 using System;
@@ -9,10 +11,23 @@ namespace Pokermon.Controllers
     [ApiController]
     public class GameController : ControllerBase
     {
-        [HttpGet("{id}")]
-        public GameStateResponse Index(int id, [FromHeader] Guid playerId)
+        private IGameService _gameService;
+        public GameController(IGameService gameService)
         {
-            throw new NotImplementedException();
+            _gameService = gameService;
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<GameStateResponse> Index(int id, [FromHeader] Guid playerId)
+        {
+            var response = _gameService.GetGame(id, playerId);
+
+            return response.Error switch
+            {
+                OperationError.NoError => response.Data,
+                OperationError.PlayerDoesNotExist => Unauthorized(),
+                _ => throw new ApplicationException("Unexpected error occured")
+            };
         }
 
         [HttpPost("fold/{id}")]
