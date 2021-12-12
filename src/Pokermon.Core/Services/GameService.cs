@@ -38,13 +38,14 @@ namespace Pokermon.Core.Services
 
             var thisPlayer = gameState.Players.First(p => p.Id == playerId);
             var isPlaying = gameResponse.PocketCards != null;
-            gameResponse.PocketCards = thisPlayer.PocketCards.ConvertAll<int>(c => c);
+            gameResponse.PocketCards = thisPlayer.PocketCards?.ConvertAll<int>(c => c);
             gameResponse.Players = gameState.Players.Select(p => p != null ? new PlayerResponse(p) : null).ToArray();
             if (gameState.IsEndOfHand)
             {
                 for (var i = 0; i < 8; i++)
                 {
-                    gameResponse.Players[i].PocketCards = gameState.Players[i].PocketCards.ConvertAll<int>(c => c);
+                    if(gameResponse.Players[i] != null)
+                        gameResponse.Players[i].PocketCards = gameState.Players[i].PocketCards?.ConvertAll<int>(c => c);
                 }
             }
 
