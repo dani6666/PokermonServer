@@ -145,7 +145,10 @@ namespace Pokermon.Core.Services
 
             player.PocketCards = null;
 
-            PassTurn(game);
+            if(game.Players.Count(p => p?.PocketCards != null) == 1)
+                EndRound(game, true);
+            else
+                PassTurn(game);
 
             return OperationError.NoError;
         }
@@ -198,7 +201,7 @@ namespace Pokermon.Core.Services
 
         }
 
-        private static void EndRound(GameState game)
+        private static void EndRound(GameState game, bool allPlayersFolded = false)
         {
             foreach (var player in game.Players.Where(p => p != null))
             {
@@ -207,7 +210,7 @@ namespace Pokermon.Core.Services
                 player.CanRaise = true;
             }
 
-            if (game.TableCards.Count == 5)
+            if (game.TableCards.Count == 5 || allPlayersFolded)
             {
                 EndHand(game);
             }
