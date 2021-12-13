@@ -216,11 +216,13 @@ namespace Pokermon.Core.Services
             else
             {
                 game.TableCards.Add(game.Deck[0]);
-
                 game.Deck.RemoveAt(0);
+
+                game.HighestBet = 0;
             }
 
             game.CurrentPlayerPosition = Array.FindIndex(game.Players, p => p?.PocketCards != null);
+            game.LastRaisingPlayerPosition = game.CurrentPlayerPosition;
         }
 
         private static void EndHand(GameState game)
@@ -327,7 +329,6 @@ namespace Pokermon.Core.Services
                 player.WonCash = null;
             }
 
-            game.CurrentPlayerPosition = Array.FindIndex(game.Players, p => p?.PocketCards != null);
             game.HighestBet = StartingBet;
         }
     }
