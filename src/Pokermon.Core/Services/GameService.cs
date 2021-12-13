@@ -44,7 +44,7 @@ namespace Pokermon.Core.Services
             {
                 for (var i = 0; i < 8; i++)
                 {
-                    if(gameResponse.Players[i] != null)
+                    if (gameResponse.Players[i] != null)
                         gameResponse.Players[i].PocketCards = gameState.Players[i].PocketCards?.ConvertAll<int>(c => c);
                 }
             }
@@ -140,14 +140,14 @@ namespace Pokermon.Core.Services
                 return OperationError.TableDoesNotExist;
 
             var player = game.Players[game.CurrentPlayerPosition];
-            if (player.Id != playerId || force)
+            if (player.Id != playerId && !force)
                 return OperationError.OtherPlayersTurn;
 
             player.PocketCards = null;
 
-            if(game.Players.Count(p => p?.PocketCards != null) == 1)
+            if (game.Players.Count(p => p?.PocketCards != null) == 1)
                 EndRound(game, true);
-            else if(!force)
+            else if (!force)
                 PassTurn(game);
 
             return OperationError.NoError;
@@ -265,10 +265,17 @@ namespace Pokermon.Core.Services
             }
         }
 
-        private static IEnumerable<List<Player>> DetermineWinners(GameState gameState)
-        {
-            return gameState.Players.Where(p => p?.PocketCards != null).Select(p => new List<Player> { p });
-        }
+        private static IEnumerable<List<Player>> DetermineWinners(GameState gameState) =>
+            gameState.Players
+                .Where(p => p?.PocketCards != null)
+                .Select(p => (Player: p, Rank: gameState.TableCards
+                    .Concat(p.PocketCards)
+                    .ToList()
+                    .GetAllPossibleHands()
+                    .Max(h => h.CalculateRank())))
+                .GroupBy(p => p.Rank)
+                .OrderByDescending(g => g.Key)
+                .Select(g => g.Select(p => p.Player).ToList());
 
         private static void StartNewHand(GameState game)
         {
