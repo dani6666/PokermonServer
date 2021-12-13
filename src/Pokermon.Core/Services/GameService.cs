@@ -264,8 +264,14 @@ namespace Pokermon.Core.Services
             }
         }
 
-        private static IEnumerable<List<Player>> DetermineWinners(GameState gameState) =>
-            gameState.Players
+        private static IEnumerable<List<Player>> DetermineWinners(GameState gameState)
+        {
+            var activePlayers = gameState.Players.Where(p => p?.PocketCards != null).ToList();
+
+            if (activePlayers.Count == 1)
+                return new List<List<Player>> { activePlayers };
+
+            return gameState.Players
                 .Where(p => p?.PocketCards != null)
                 .Select(p => (Player: p, Rank: gameState.TableCards
                     .Concat(p.PocketCards)
@@ -275,6 +281,8 @@ namespace Pokermon.Core.Services
                 .GroupBy(p => p.Rank)
                 .OrderByDescending(g => g.Key)
                 .Select(g => g.Select(p => p.Player).ToList());
+        }
+
 
         private static void StartNewHand(GameState game)
         {
