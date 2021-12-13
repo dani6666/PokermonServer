@@ -8,6 +8,7 @@ using Pokermon.Core.Interfaces.Repositories;
 using Pokermon.Core.Interfaces.Services;
 using Pokermon.Core.Services;
 using Pokermon.Repository;
+using Pokermon.Workers;
 
 namespace Pokermon
 {
@@ -30,6 +31,8 @@ namespace Pokermon
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pokermon", Version = "v1" });
             });
             services.AddCors();
+
+            services.AddHostedService<GameRestartWorker>();
 
             services.AddSingleton<ITablesRepository, TablesRepository>();
             services.AddSingleton<IGamesRepository, GamesRepository>();

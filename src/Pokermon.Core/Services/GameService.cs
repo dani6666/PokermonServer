@@ -235,7 +235,7 @@ namespace Pokermon.Core.Services
             {
                 previousWinners.AddRange(winners);
                 var totalWinnerLeft = winners.Count;
-                foreach (var winner in winners.Where(p => p.IsAllIn).OrderBy(p => (p.IsAllIn, p.TotalBet)))
+                foreach (var winner in winners.OrderBy(p => (p.IsAllIn, p.TotalBet)))
                 {
                     winner.WonCash = 0;
                     foreach (var player in game.Players.Where(p => p.TotalBet > 0))
