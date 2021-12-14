@@ -36,7 +36,7 @@ namespace Pokermon.Core.Services
 
             var gameResponse = new GameStateResponse(gameState);
 
-            var thisPlayer = gameState.Players.First(p => p.Id == playerId);
+            var thisPlayer = gameState.Players.First(p => p?.Id == playerId);
             gameResponse.PocketCards = thisPlayer.PocketCards?.ConvertAll<int>(c => c);
             gameResponse.Players = gameState.Players.Select(p => p != null ? new PlayerResponse(p) : null).ToArray();
             if (gameState.IsEndOfHand)
@@ -72,7 +72,13 @@ namespace Pokermon.Core.Services
             if (player.Id != playerId)
                 return OperationError.OtherPlayersTurn;
 
-            if (player.CurrentBet + bet < game.HighestBet)
+            if (player.CurrentCash < bet)
+                return OperationError.NotEnoughCashToBet;
+
+            if (player.CurrentCash == bet)
+                player.IsAllIn = true;
+
+            if (player.CurrentBet + bet < game.HighestBet && !player.IsAllIn)
                 return OperationError.BetTooLow;
 
             if (player.CurrentBet + bet > game.HighestBet)
@@ -88,17 +94,12 @@ namespace Pokermon.Core.Services
                 }
             }
 
-            if (player.CurrentCash < bet)
-                return OperationError.NotEnoughCashToBet;
-
             player.CurrentBet += bet;
             player.TotalBet += bet;
             player.CurrentCash -= bet;
 
-            game.HighestBet = player.CurrentBet;
-
-            if (player.CurrentCash == 0)
-                player.IsAllIn = true;
+            if (game.HighestBet < player.CurrentBet)
+                game.HighestBet = player.CurrentBet;
 
             PassTurn(game);
 
@@ -146,10 +147,23 @@ namespace Pokermon.Core.Services
 
             if (game.Players.Count(p => p?.PocketCards != null) == 1)
                 EndRound(game, true);
-            else if (!force)
+            else if (!force || player.Id == playerId)
                 PassTurn(game);
 
             return OperationError.NoError;
+        }
+
+        public void RemovePlayer(int id, Guid playerId)
+        {
+            var game = _gamesRepository.GetGame(id);
+            for (var i = 0; i < 8; i++)
+            {
+                if (game.Players[i] == null)
+                    continue;
+
+                if (game.Players[i].Id == playerId)
+                    game.Players[i] = null;
+            }
         }
 
         public void CreateNewGame(int id)
@@ -162,13 +176,13 @@ namespace Pokermon.Core.Services
             var game = _gamesRepository.GetGame(id);
             game.Players[position] = new Player(playerId);
 
-            if (game.Players.Count(p => p != null) == 2)
+            if (game.IsWaitingForPlayers)
                 StartNewHand(game);
         }
 
         public void RestartGames()
         {
-            foreach (var game in _gamesRepository.GetGamesToRestart(DateTime.Now.AddSeconds(-10)))
+            foreach (var game in _gamesRepository.GetGamesToRestart(DateTime.Now.AddSeconds(-20)))
                 StartNewHand(game);
         }
 
@@ -182,7 +196,7 @@ namespace Pokermon.Core.Services
                 {
                     if (nextPosition == game.LastRaisingPlayerPosition)
                     {
-                        if(game.Players.Count(p => p?.PocketCards != null && !p.IsAllIn) > 1)
+                        if (game.Players.Count(p => p?.PocketCards != null && !p.IsAllIn) > 1)
                             EndRound(game);
                         else
                             JumpToEndHand(game);
@@ -235,13 +249,11 @@ namespace Pokermon.Core.Services
                     game.TableCards.Add(game.Deck[0]);
                     game.Deck.RemoveAt(0);
                 }
-                
 
                 game.HighestBet = 0;
+                game.CurrentPlayerPosition = Array.FindIndex(game.Players, p => p?.PocketCards != null);
+                game.LastRaisingPlayerPosition = game.CurrentPlayerPosition;
             }
-
-            game.CurrentPlayerPosition = Array.FindIndex(game.Players, p => p?.PocketCards != null);
-            game.LastRaisingPlayerPosition = game.CurrentPlayerPosition;
         }
 
         private static void EndHand(GameState game)
@@ -281,6 +293,7 @@ namespace Pokermon.Core.Services
             foreach (var player in game.Players.Where(p => p != null))
             {
                 player.WonCash += player.TotalBet;
+                game.PotValue -= player.TotalBet;
                 player.TotalBet = 0;
             }
         }
@@ -311,9 +324,18 @@ namespace Pokermon.Core.Services
             {
                 player.CurrentCash += player.WonCash!.Value;
                 player.WonCash = 0;
+                player.IsAllIn = false;
             }
 
             game.IsEndOfHand = false;
+
+            if (game.Players.Count(p => p != null && p.CurrentCash > 0) < 2)
+            {
+                game.IsWaitingForPlayers = true;
+                return;
+            }
+
+            game.IsWaitingForPlayers = false;
 
             game.Deck.Clear();
             game.TableCards.Clear();
@@ -327,10 +349,13 @@ namespace Pokermon.Core.Services
             }
             game.Deck.Shuffle();
 
-            foreach (var player in game.Players)
+            foreach (var player in game.Players.Where(p => p != null))
             {
-                if (player == null)
+                if (player.CurrentCash == 0)
+                {
+                    player.PocketCards = null;
                     continue;
+                }
 
                 player.PocketCards = new List<Card>();
                 for (var i = 0; i < 2; i++)
@@ -350,6 +375,8 @@ namespace Pokermon.Core.Services
             }
 
             game.HighestBet = StartingBet;
+            game.CurrentPlayerPosition = Array.FindIndex(game.Players, p => p?.PocketCards != null);
+            game.LastRaisingPlayerPosition = game.CurrentPlayerPosition;
         }
     }
 }

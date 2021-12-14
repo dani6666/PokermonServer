@@ -34,7 +34,7 @@ namespace Pokermon.Core.Extensions
             var straight = CheckForStraight(cards);
 
             if (flush && straight)
-                return new HandRank(6, cards.Max(c => c.Value));
+                return new HandRank(7, cards.Max(c => c.Value));
 
             var cardGroups = cards.GroupBy(c => c.Value).ToList();
 
@@ -43,14 +43,14 @@ namespace Pokermon.Core.Extensions
                 var orderedGroups = cardGroups.OrderBy(g => g.Count()).ToArray();
                 var categoryRank = orderedGroups[0].Count() == 4 ? 0 : 0;
 
-                return new HandRank(5, categoryRank + orderedGroups[0].Key * 14 + orderedGroups[1].Key);
+                return new HandRank(6, categoryRank + orderedGroups[0].Key * 14 + orderedGroups[1].Key);
             }
 
             if (flush)
-                return new HandRank(4, cards.Max(c => c.Value));
+                return new HandRank(5, cards.Max(c => c.Value));
 
             if (straight)
-                return new HandRank(3, cards.Max(c => c.Value));
+                return new HandRank(4, cards.Max(c => c.Value));
 
             if (cardGroups.Count == 3)
             {
@@ -58,11 +58,25 @@ namespace Pokermon.Core.Extensions
                 var singleKindOrderedGroups = cardGroups.Where(g => g.Count() == 1).OrderByDescending(g => g.Key).ToArray();
 
                 if (threeOfKindGroup != null)
-                    return new HandRank(2, threeOfKindGroup.Key * 14 * 14 + singleKindOrderedGroups[0].Key * 14 + singleKindOrderedGroups[1].Key);
+                    return new HandRank(3, threeOfKindGroup.Key * 14 * 14 + singleKindOrderedGroups[0].Key * 14 + singleKindOrderedGroups[1].Key);
 
                 var pairGroups = cardGroups.Where(g => g.Count() == 2).OrderByDescending(g => g.Key).ToArray();
 
-                return new HandRank(1, pairGroups[0].Key * 14 * 14 + pairGroups[1].Key * 14 + singleKindOrderedGroups[0].Key);
+                return new HandRank(2, pairGroups[0].Key * 14 * 14 + pairGroups[1].Key * 14 + singleKindOrderedGroups[0].Key);
+            }
+
+            if (cardGroups.Count == 4)
+            {
+                var singleKindOrderedRanks = cardGroups.Where(g => g.Count() == 1).Select(g => g.Key).OrderByDescending(g => g).ToList();
+
+                var pairRank = cardGroups.First(g => g.Count() == 2).Key;
+                foreach (var rank in singleKindOrderedRanks)
+                {
+                    pairRank *= 14;
+                    pairRank += rank;
+                }
+
+                return new HandRank(1, pairRank);
             }
 
             var orderedCardRanks = cards.Select(c => c.Value).OrderByDescending(v => v).ToList();

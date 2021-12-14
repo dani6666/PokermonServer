@@ -11,6 +11,7 @@ namespace Pokermon.Core.Interfaces.Services
         OperationError PlaceBet(int id, Guid playerId, int bet);
         OperationError Check(int id, Guid playerId);
         OperationError Fold(int id, Guid playerId, bool force = false);
+        void RemovePlayer(int id, Guid playerId);
         void CreateNewGame(int id);
         void AddPlayer(int id, int position, Guid playerId);
         void RestartGames();

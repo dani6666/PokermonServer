@@ -6,6 +6,7 @@ namespace Pokermon.Core.Model.Entities
     public class GameState
     {
         public int TableId { get; set; }
+        public bool IsWaitingForPlayers { get; set; } = true;
         public bool IsEndOfHand { get; set; }
         public DateTime HandEndTime { get; set; }
         public int CurrentPlayerPosition { get; set; }

@@ -63,6 +63,7 @@ namespace Pokermon.Core.Services
 
                 _gameService.Fold(tableId, playerId, true);
 
+                _gameService.RemovePlayer(tableId, playerId);
                 var playersLeft = _tablesRepository.RemovePlayer(tableId, playerId);
 
                 if (playersLeft == 0)
