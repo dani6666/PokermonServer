@@ -182,7 +182,11 @@ namespace Pokermon.Core.Services
                 {
                     if (nextPosition == game.LastRaisingPlayerPosition)
                     {
-                        EndRound(game);
+                        if(game.Players.Count(p => p?.PocketCards != null && !p.IsAllIn) > 1)
+                            EndRound(game);
+                        else
+                            JumpToEndHand(game);
+
                         return;
                     }
 
@@ -200,6 +204,16 @@ namespace Pokermon.Core.Services
 
         }
 
+        private static void JumpToEndHand(GameState game)
+        {
+            while (game.TableCards.Count < 5)
+            {
+                EndRound(game);
+            }
+
+            EndRound(game);
+        }
+
         private static void EndRound(GameState game, bool allPlayersFolded = false)
         {
             foreach (var player in game.Players.Where(p => p != null))
@@ -215,8 +229,13 @@ namespace Pokermon.Core.Services
             }
             else
             {
-                game.TableCards.Add(game.Deck[0]);
-                game.Deck.RemoveAt(0);
+                var cardsToAdd = game.TableCards.Count == 0 ? 3 : 1;
+                for (int i = 0; i < cardsToAdd; i++)
+                {
+                    game.TableCards.Add(game.Deck[0]);
+                    game.Deck.RemoveAt(0);
+                }
+                
 
                 game.HighestBet = 0;
             }
@@ -240,7 +259,7 @@ namespace Pokermon.Core.Services
                 foreach (var winner in winners.OrderBy(p => (p.IsAllIn, p.TotalBet)))
                 {
                     winner.WonCash = 0;
-                    foreach (var player in game.Players.Where(p => p.TotalBet > 0))
+                    foreach (var player in game.Players.Where(p => p != null && p.TotalBet > 0))
                     {
                         if (previousWinners.Contains(player))
                             continue;
@@ -297,6 +316,7 @@ namespace Pokermon.Core.Services
             game.IsEndOfHand = false;
 
             game.Deck.Clear();
+            game.TableCards.Clear();
 
             foreach (var cardColor in Enum.GetValues<CardColor>())
             {
