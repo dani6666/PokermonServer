@@ -320,10 +320,14 @@ namespace Pokermon.Core.Services
 
         private static void StartNewHand(GameState game)
         {
-            foreach (var player in game.Players.Where(p => p?.WonCash != null))
+            foreach (var player in game.Players.Where(p => p != null))
             {
-                player.CurrentCash += player.WonCash!.Value;
-                player.WonCash = 0;
+                if (player.WonCash != null)
+                {
+                    player.CurrentCash += player.WonCash!.Value;
+                    player.WonCash = 0;
+                }
+
                 player.IsAllIn = false;
             }
 
