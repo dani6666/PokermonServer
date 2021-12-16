@@ -6,6 +6,10 @@
         TableDoesNotExist,
         PlayerDoesNotExist,
         TableAlreadyExists,
-        NoSeatLeftAtTable
+        NoSeatLeftAtTable,
+        OtherPlayersTurn,
+        BetTooLow,
+        NotEnoughCashToBet,
+        PlayerCannotRaise
     }
 }

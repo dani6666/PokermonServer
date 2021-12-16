@@ -8,7 +8,7 @@ namespace Pokermon.Core.Model.Responses
         public bool IsEndOfHand { get; set; }
         public int CurrentPlayerPosition { get; set; }
         public int PotValue { get; set; }
-        public List<int> TableCards { get; set; }
+        public int?[] TableCards { get; set; } = new int?[5];
         public List<int> PocketCards { get; set; }
         public PlayerResponse[] Players { get; set; }
         public int CashToCall { get; set; }
@@ -19,7 +19,10 @@ namespace Pokermon.Core.Model.Responses
             IsEndOfHand = gameState.IsEndOfHand;
             CurrentPlayerPosition = gameState.CurrentPlayerPosition;
             PotValue = gameState.PotValue;
-            TableCards = gameState.TableCards?.ConvertAll<int>(c => c);
+            for (int i = 0; i < (gameState.TableCards?.Count ?? 0); i++)
+            {
+                TableCards[i] = gameState.TableCards?[i];
+            }
         }
     }
 }

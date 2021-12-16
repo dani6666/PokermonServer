@@ -61,6 +61,9 @@ namespace Pokermon.Core.Services
                 if (!_tablesRepository.PlayerExists(tableId, playerId))
                     return OperationError.PlayerDoesNotExist;
 
+                _gameService.Fold(tableId, playerId, true);
+
+                _gameService.RemovePlayer(tableId, playerId);
                 var playersLeft = _tablesRepository.RemovePlayer(tableId, playerId);
 
                 if (playersLeft == 0)

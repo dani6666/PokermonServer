@@ -26,26 +26,58 @@ namespace Pokermon.Controllers
             {
                 OperationError.NoError => response.Data,
                 OperationError.PlayerDoesNotExist => Unauthorized(),
+                OperationError.TableDoesNotExist => NotFound(),
                 _ => throw new ApplicationException("Unexpected error occured")
             };
         }
 
         [HttpPost("fold/{id}")]
-        public void Fold(int id, [FromHeader] Guid playerId)
+        public ActionResult Fold(int id, [FromHeader] Guid playerId)
         {
-            throw new NotImplementedException();
+            var error = _gameService.Fold(id, playerId);
+
+            return error switch
+            {
+                OperationError.NoError => Ok(),
+                OperationError.PlayerDoesNotExist => Unauthorized(),
+                OperationError.TableDoesNotExist => NotFound(),
+                OperationError.OtherPlayersTurn => BadRequest(),
+                _ => throw new ApplicationException("Unexpected error occured")
+            };
         }
 
         [HttpPost("check/{id}")]
-        public void Check(int id, [FromHeader] Guid playerId)
+        public ActionResult Check(int id, [FromHeader] Guid playerId)
         {
-            throw new NotImplementedException();
+            var error = _gameService.Check(id, playerId);
+
+            return error switch
+            {
+                OperationError.NoError => Ok(),
+                OperationError.PlayerDoesNotExist => Unauthorized(),
+                OperationError.TableDoesNotExist => NotFound(),
+                OperationError.OtherPlayersTurn => BadRequest(),
+                OperationError.BetTooLow => BadRequest(),
+                _ => throw new ApplicationException("Unexpected error occured")
+            };
         }
 
         [HttpPost("bet/{id}")]
-        public void Bet(int id, [FromHeader] Guid playerId, [FromBody] BetRequest request)
+        public ActionResult Bet(int id, [FromHeader] Guid playerId, [FromBody] BetRequest request)
         {
-            throw new NotImplementedException();
+            var error = _gameService.PlaceBet(id, playerId, request.Value);
+
+            return error switch
+            {
+                OperationError.NoError => Ok(),
+                OperationError.PlayerDoesNotExist => Unauthorized(),
+                OperationError.TableDoesNotExist => NotFound(),
+                OperationError.OtherPlayersTurn => BadRequest(),
+                OperationError.BetTooLow => BadRequest(),
+                OperationError.PlayerCannotRaise => BadRequest(),
+                OperationError.NotEnoughCashToBet => BadRequest(),
+                _ => throw new ApplicationException("Unexpected error occured")
+            };
         }
     }
 }
