@@ -8,6 +8,7 @@ using Pokermon.Core.Interfaces.Repositories;
 using Pokermon.Core.Interfaces.Services;
 using Pokermon.Core.Services;
 using Pokermon.Repository;
+using Pokermon.Workers;
 
 namespace Pokermon
 {
@@ -31,8 +32,13 @@ namespace Pokermon
             });
             services.AddCors();
 
+            services.AddHostedService<GameRestartWorker>();
+
             services.AddSingleton<ITablesRepository, TablesRepository>();
+            services.AddSingleton<IGamesRepository, GamesRepository>();
+
             services.AddSingleton<ITablesService, TablesService>();
+            services.AddSingleton<IGameService, GameService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
